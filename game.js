@@ -1,4 +1,3 @@
-
 let config = {
   type: Phaser.AUTO,
   width: 800,
@@ -19,28 +18,55 @@ let config = {
 
 let player;
 let platforms;
+let skeletonList;
 let groundObj;
 let bg;
 let score = 0;
+let gameOver = false;
+let timer;
 
 const game = new Phaser.Game(config);
 
 function preload() {
   //Background
   this.load.image("bg", "./assets/BackgroundLayers/Layer_0010_1.png");
-  this.load.image('backgroundLayer1', './assets/BackgroundLayers/Layer_0003_6.png')
-  this.load.image('backgroundLayer2', './assets/BackgroundLayers/Layer_0004_Lights.png')
-  this.load.image('backgroundLayer3', './assets/BackgroundLayers/Layer_0005_5.png')
-  this.load.image('backgroundLayer4', './assets/BackgroundLayers/Layer_0006_4.png')
-  this.load.image('backgroundLayer5', './assets/BackgroundLayers/Layer_0007_Lights.png')
-  this.load.image('backgroundLayer6', './assets/BackgroundLayers/Layer_0008_3.png')
-  this.load.image('backgroundLayer7', './assets/BackgroundLayers/Layer_0009_2.png')
-  this.load.image('backgroundLayer8', './assets/BackgroundLayers/Layer_0010_1.png')
-  this.load.image('treeTops', './assets/BackgroundLayers/Layer_0002_7.png');
+  this.load.image(
+    "backgroundLayer1",
+    "./assets/BackgroundLayers/Layer_0003_6.png"
+  );
+  this.load.image(
+    "backgroundLayer2",
+    "./assets/BackgroundLayers/Layer_0004_Lights.png"
+  );
+  this.load.image(
+    "backgroundLayer3",
+    "./assets/BackgroundLayers/Layer_0005_5.png"
+  );
+  this.load.image(
+    "backgroundLayer4",
+    "./assets/BackgroundLayers/Layer_0006_4.png"
+  );
+  this.load.image(
+    "backgroundLayer5",
+    "./assets/BackgroundLayers/Layer_0007_Lights.png"
+  );
+  this.load.image(
+    "backgroundLayer6",
+    "./assets/BackgroundLayers/Layer_0008_3.png"
+  );
+  this.load.image(
+    "backgroundLayer7",
+    "./assets/BackgroundLayers/Layer_0009_2.png"
+  );
+  this.load.image(
+    "backgroundLayer8",
+    "./assets/BackgroundLayers/Layer_0010_1.png"
+  );
+  this.load.image("treeTops", "./assets/BackgroundLayers/Layer_0002_7.png");
 
   //Foreground
   this.load.image("ground", "./assets/BackgroundLayers/Ground_Cropped.png");
-  this.load.image('groundLayer1', './assets/BackgroundLayers/Layer_0000_9.png')
+  this.load.image("groundLayer1", "./assets/BackgroundLayers/Layer_0000_9.png");
 
   //Player
   this.load.spritesheet(
@@ -51,8 +77,15 @@ function preload() {
 
   //Skeleton
   this.load.spritesheet(
-    "skeleton",
+    "SkeletonAttack",
     "./assets/Skeleton/SpriteSheets/SkeletonAttack.png",
+    { frameWidth: 30, frameHeight: 37 }
+  );
+
+  //Skeleton
+  this.load.spritesheet(
+    "SkeletonWalk",
+    "./assets/Skeleton/SpriteSheets/SkeletonWalk.png",
     { frameWidth: 30, frameHeight: 37 }
   );
 }
@@ -62,45 +95,93 @@ function create() {
   bg = this.add
     .image(game.config.width / 2, game.config.height / 2, "bg")
     .setDisplaySize(game.config.width, game.config.height);
-  bg.setDepth(-1)
+  bg.setDepth(-1);
 
   // Create physics group for standable platforms
   platforms = this.physics.add.staticGroup();
 
   // Create ground
-  this.ground = this.add.tileSprite(600, 550, 1200, 70, 'ground') // 660
-  this.ground.scaleY = 2
-  this.ground.setDepth(0)
-  platforms.add(this.ground)
-  this.ground.body.setOffset(0, 15)
+  this.ground = this.add.tileSprite(600, 550, 1200, 70, "ground"); // 660
+  this.ground.scaleY = 2;
+  this.ground.setDepth(0);
+  platforms.add(this.ground);
+  this.ground.body.setOffset(0, 15);
 
   //Create layer darkened ground
-  this.groundLayer1 = this.add.tileSprite(600, 80, 1200, 800, 'groundLayer1')
-  this.groundLayer1.setDepth(1)
+  this.groundLayer1 = this.add.tileSprite(600, 80, 1200, 800, "groundLayer1");
+  this.groundLayer1.setDepth(1);
   this.groundLayer1.scaleY = 1.3;
 
   //Create layered background
-  this.backgroundLayer8 = this.add.tileSprite(500, 90, 1200, 800, 'backgroundLayer8')
-  this.backgroundLayer7 = this.add.tileSprite(500, 90, 1200, 800, 'backgroundLayer7')
-  this.backgroundLayer6 = this.add.tileSprite(500, 163, 1200, 800, 'backgroundLayer6')
-  this.backgroundLayer5 = this.add.tileSprite(500, 163, 1200, 800, 'backgroundLayer5')
-  this.backgroundLayer4 = this.add.tileSprite(500, 163, 1200, 800, 'backgroundLayer4')
-  this.backgroundLayer3 = this.add.tileSprite(500, 163, 1200, 800, 'backgroundLayer3')
-  this.backgroundLayer2 = this.add.tileSprite(500, 163, 1200, 800, 'backgroundLayer2')
-  this.backgroundLayer1 = this.add.tileSprite(500, 163, 1200, 800, 'backgroundLayer1')
+  this.backgroundLayer8 = this.add.tileSprite(
+    500,
+    90,
+    1200,
+    800,
+    "backgroundLayer8"
+  );
+  this.backgroundLayer7 = this.add.tileSprite(
+    500,
+    90,
+    1200,
+    800,
+    "backgroundLayer7"
+  );
+  this.backgroundLayer6 = this.add.tileSprite(
+    500,
+    163,
+    1200,
+    800,
+    "backgroundLayer6"
+  );
+  this.backgroundLayer5 = this.add.tileSprite(
+    500,
+    163,
+    1200,
+    800,
+    "backgroundLayer5"
+  );
+  this.backgroundLayer4 = this.add.tileSprite(
+    500,
+    163,
+    1200,
+    800,
+    "backgroundLayer4"
+  );
+  this.backgroundLayer3 = this.add.tileSprite(
+    500,
+    163,
+    1200,
+    800,
+    "backgroundLayer3"
+  );
+  this.backgroundLayer2 = this.add.tileSprite(
+    500,
+    163,
+    1200,
+    800,
+    "backgroundLayer2"
+  );
+  this.backgroundLayer1 = this.add.tileSprite(
+    500,
+    163,
+    1200,
+    800,
+    "backgroundLayer1"
+  );
 
   //Create treetops
-  this.treeTops = this.add.tileSprite(200, 175, 1200, 800, 'treeTops')
+  this.treeTops = this.add.tileSprite(200, 175, 1200, 800, "treeTops");
 
   //Player sprite
   player = this.physics.add.sprite(300, 450, "playerChar");
-  player.setSize(25, 35);
+  player.setSize(12, 30).setOffset(22, 5);
   player.setScale(2.5, 2.5);
 
   //Player properties
   player.setBounce(0.1);
   player.setCollideWorldBounds(true);
-  player.body.setAllowDrag(true)
+  player.body.setAllowDrag(true);
 
   //Player Char Animations
   let animFrameRate = 8;
@@ -165,19 +246,47 @@ function create() {
   //   repeat: 0
   // });
 
+  this.anims.create({
+    key: "skeleton-walk",
+    frames: this.anims.generateFrameNumbers("SkeletonWalk", {
+      start: 0,
+      end: 12
+    }),
+    frameRate: 15,
+    repeat: 0
+  });
+
   cursors = this.input.keyboard.createCursorKeys();
+
+  // Physics group for enemies
+  skeletonList = this.physics.add.group();
 
   //Collide platform and player
   this.physics.add.collider(platforms, player);
+  this.physics.add.collider(platforms, skeletonList);
+  this.physics.add.collider(player, skeletonList, onEnemyCollision, null, this);
 
-  //TODO Have this spawn dynamically
-  this.skeleton = this.add.sprite(400, 50, "skeleton");
-  this.skeleton.setScale(2.5, 2.5);
+  let callback = () => {
+    makeSkeleton(this);
+  };
+
+  //Timer to control skeleton spawning
+  timer = this.time.addEvent({
+    delay: Phaser.Math.Between(200, 1000), // ms
+    callback: callback,
+    //args: [],
+    callbackScope: this,
+    loop: true
+  });
 }
 
 function update() {
-  // makeSkeleton()
-  let scrollSpeed = 3;
+  if (gameOver) {
+    return;
+  }
+
+  let spawnRate = 2;
+  let scrollSpeed = 5;
   this.ground.tilePositionX += scrollSpeed;
   this.groundLayer1.tilePositionX += scrollSpeed;
   this.treeTops.tilePositionX += scrollSpeed;
@@ -203,16 +312,30 @@ function update() {
     if (player.body.touching.down) {
       player.anims.play("left", true); // play walk animation
     }
-  }
-  else if (cursors.up.isDown && player.body.touching.down) {
-    player.setVelocityY(600 * -1);
-    player.anims.play("jump", true);
-  }
-  else if (cursors.down.isDown && player.body.touching.down) {
-    player.anims.play("slide", true); // play slide animation
-  }
-  else if (player.body.touching.down) {
+  } else if (player.body.touching.down) {
     player.flipX = false; // use the original sprite looking to the right
     player.anims.play("idle-run", true);
   }
+
+  if (cursors.up.isDown && player.body.touching.down) {
+    player.setVelocityY(700 * -1);
+    player.anims.play("jump", true);
+  }
+  if (cursors.down.isDown && player.body.touching.down) {
+    player.anims.play("slide", true); // play slide animation
+  }
+}
+
+function makeSkeleton(scene) {
+  skeleton = skeletonList.create(900, 450, "SkeletonAttack");
+  skeleton.flipX = true;
+  skeleton.setScale(3, 3);
+  skeleton.setVelocityX(Phaser.Math.Between(400, 800) * -1);
+  skeleton.setSize(20, 30).setOffset(5, 5);
+  // skeleton.anims.play("skeleton-walk", true);
+}
+
+function onEnemyCollision(player) {
+  gameOver = true;
+  this.physics.pause();
 }
