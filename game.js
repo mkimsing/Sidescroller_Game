@@ -23,7 +23,8 @@ let groundObj;
 let bg;
 let score = 0;
 let gameOver = false;
-let timer;
+let spawnTimer;
+let scoreText;
 
 const game = new Phaser.Game(config);
 
@@ -83,11 +84,11 @@ function preload() {
   );
 
   //Skeleton
-  this.load.spritesheet(
-    "SkeletonWalk",
-    "./assets/Skeleton/SpriteSheets/SkeletonWalk.png",
-    { frameWidth: 30, frameHeight: 37 }
-  );
+  // this.load.spritesheet(
+  //   "SkeletonWalk",
+  //   "./assets/Skeleton/SpriteSheets/SkeletonWalk.png",
+  //   { frameWidth: 30, frameHeight: 37 }
+  // );
 }
 
 function create() {
@@ -268,11 +269,20 @@ function create() {
 
   let callback = () => {
     makeSkeleton(this);
+    //Update score
+    score += 100;
+    scoreText.setText("Score: " + score);
   };
 
+  //  The score
+  scoreText = this.add.text(50, 32, "Score: 0", {
+    fontSize: "24px",
+    fill: "#FFF"
+  });
+
   //Timer to control skeleton spawning
-  timer = this.time.addEvent({
-    delay: Phaser.Math.Between(200, 1000), // ms
+  spawnTimer = this.time.addEvent({
+    delay: Phaser.Math.Between(400, 1300), // ms
     callback: callback,
     //args: [],
     callbackScope: this,
@@ -282,11 +292,11 @@ function create() {
 
 function update() {
   if (gameOver) {
+    spawnTimer.paused = true;
     return;
   }
-
   let spawnRate = 2;
-  let scrollSpeed = 5;
+  let scrollSpeed = 6;
   this.ground.tilePositionX += scrollSpeed;
   this.groundLayer1.tilePositionX += scrollSpeed;
   this.treeTops.tilePositionX += scrollSpeed;
@@ -318,7 +328,7 @@ function update() {
   }
 
   if (cursors.up.isDown && player.body.touching.down) {
-    player.setVelocityY(700 * -1);
+    player.setVelocityY(720 * -1);
     player.anims.play("jump", true);
   }
   if (cursors.down.isDown && player.body.touching.down) {
@@ -330,9 +340,8 @@ function makeSkeleton(scene) {
   skeleton = skeletonList.create(900, 450, "SkeletonAttack");
   skeleton.flipX = true;
   skeleton.setScale(3, 3);
-  skeleton.setVelocityX(Phaser.Math.Between(400, 800) * -1);
+  skeleton.setVelocityX(Phaser.Math.Between(400, 700) * -1);
   skeleton.setSize(20, 30).setOffset(5, 5);
-  // skeleton.anims.play("skeleton-walk", true);
 }
 
 function onEnemyCollision(player) {
