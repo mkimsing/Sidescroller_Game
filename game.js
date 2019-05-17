@@ -1,3 +1,4 @@
+
 let config = {
   type: Phaser.AUTO,
   width: 800,
@@ -22,12 +23,11 @@ let groundObj;
 let bg;
 let score = 0;
 
-var game = new Phaser.Game(config);
+const game = new Phaser.Game(config);
 
 function preload() {
+  //Background
   this.load.image("bg", "./assets/BackgroundLayers/Layer_0010_1.png");
-  this.load.image("ground", "./assets/BackgroundLayers/Ground_Cropped.png");
-  this.load.image('groundLayer1', './assets/BackgroundLayers/Layer_0000_9.png')
   this.load.image('backgroundLayer1', './assets/BackgroundLayers/Layer_0003_6.png')
   this.load.image('backgroundLayer2', './assets/BackgroundLayers/Layer_0004_Lights.png')
   this.load.image('backgroundLayer3', './assets/BackgroundLayers/Layer_0005_5.png')
@@ -36,12 +36,24 @@ function preload() {
   this.load.image('backgroundLayer6', './assets/BackgroundLayers/Layer_0008_3.png')
   this.load.image('backgroundLayer7', './assets/BackgroundLayers/Layer_0009_2.png')
   this.load.image('backgroundLayer8', './assets/BackgroundLayers/Layer_0010_1.png')
-  this.load.image('treeTops', './assets/BackgroundLayers/Layer_0002_7.png')
-  this.load.image("platform", "./assets/platform.png");
+  this.load.image('treeTops', './assets/BackgroundLayers/Layer_0002_7.png');
+
+  //Foreground
+  this.load.image("ground", "./assets/BackgroundLayers/Ground_Cropped.png");
+  this.load.image('groundLayer1', './assets/BackgroundLayers/Layer_0000_9.png')
+
+  //Player
   this.load.spritesheet(
     "playerChar",
     "./assets/Adventurer-1.5/adventurer-v1.5-Sheet.png",
     { frameWidth: 50, frameHeight: 37 }
+  );
+
+  //Skeleton
+  this.load.spritesheet(
+    "skeleton",
+    "./assets/Skeleton/SpriteSheets/SkeletonAttack.png",
+    { frameWidth: 30, frameHeight: 37 }
   );
 }
 
@@ -80,7 +92,6 @@ function create() {
   //Create treetops
   this.treeTops = this.add.tileSprite(200, 175, 1200, 800, 'treeTops')
 
-
   //Player sprite
   player = this.physics.add.sprite(300, 450, "playerChar");
   player.setSize(25, 35);
@@ -103,15 +114,15 @@ function create() {
     repeat: -1
   });
 
-  this.anims.create({
-    key: "idle",
-    frames: this.anims.generateFrameNumbers("playerChar", {
-      start: 0,
-      end: 3
-    }),
-    frameRate: animFrameRate,
-    repeat: -1
-  });
+  // this.anims.create({
+  //   key: "idle",
+  //   frames: this.anims.generateFrameNumbers("playerChar", {
+  //     start: 0,
+  //     end: 3
+  //   }),
+  //   frameRate: animFrameRate,
+  //   repeat: -1
+  // });
 
   this.anims.create({
     key: "idle-run",
@@ -143,23 +154,29 @@ function create() {
     repeat: 0
   });
 
-  this.anims.create({
-    key: "attack",
-    frames: this.anims.generateFrameNumbers("playerChar", {
-      start: 93,
-      end: 99
-    }),
-    frameRate: animFrameRate,
-    repeat: 0
-  });
+  //TODO use this if we have time
+  // this.anims.create({
+  //   key: "attack",
+  //   frames: this.anims.generateFrameNumbers("playerChar", {
+  //     start: 93,
+  //     end: 99
+  //   }),
+  //   frameRate: animFrameRate,
+  //   repeat: 0
+  // });
 
   cursors = this.input.keyboard.createCursorKeys();
 
   //Collide platform and player
   this.physics.add.collider(platforms, player);
+
+  //TODO Have this spawn dynamically
+  this.skeleton = this.add.sprite(400, 50, "skeleton");
+  this.skeleton.setScale(2.5, 2.5);
 }
 
 function update() {
+  // makeSkeleton()
   let scrollSpeed = 3;
   this.ground.tilePositionX += scrollSpeed;
   this.groundLayer1.tilePositionX += scrollSpeed;
@@ -198,5 +215,4 @@ function update() {
     player.flipX = false; // use the original sprite looking to the right
     player.anims.play("idle-run", true);
   }
-
 }
