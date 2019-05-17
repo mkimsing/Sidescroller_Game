@@ -19,6 +19,7 @@ let config = {
 let animFrameRate = 6;
 let player;
 let platforms;
+let groundObj;
 let bg;
 let score = 0;
 
@@ -56,6 +57,8 @@ function create() {
   //Player sprite
   player = this.physics.add.sprite(300, 450, "playerChar");
   player.setSize(25, 35);
+  player.setScale(2, 2);
+
   //Player properties
   player.setBounce(0.1);
   player.setCollideWorldBounds(true);
@@ -87,7 +90,7 @@ function create() {
       start: 14,
       end: 23
     }),
-    frameRate: 10,
+    frameRate: 15,
     repeat: 0
   });
 
@@ -98,6 +101,7 @@ function create() {
 }
 
 function update() {
+  groundObj.x += -2;
   if (cursors.left.isDown) {
     player.body.setVelocityX(-200); // move left
     player.flipX = true; // flip the sprite to the left
